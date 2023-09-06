@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     ferdinand (0.1.0)
+      zeitwerk (~> 2.6)
 
 GEM
   remote: https://rubygems.org/
@@ -65,6 +66,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop-performance (~> 1.19.0)
     unicode-display_width (2.4.2)
+    zeitwerk (2.6.11)
 
 PLATFORMS
   x86_64-darwin-19
