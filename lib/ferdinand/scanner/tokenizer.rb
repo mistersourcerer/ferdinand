@@ -94,20 +94,16 @@ module Ferdinand
         comment = ""
 
         while (char = read!)
-          if char == "\n" || char == "/" || reader.peek?("/")
+          if char == "/" || reader.peek?("/")
             source << char
+            source << read! if reader.peek?("/")
+            break
           end
-
-          break if char == "/"
 
           if char == "\n"
+            source << char
             next_line
             next
-          end
-
-          if reader.peek?("/")
-            source << read!
-            break
           end
 
           if char == "*" && reader.peek?("*")
