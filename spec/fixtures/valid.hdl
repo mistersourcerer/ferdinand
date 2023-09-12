@@ -1,0 +1,6 @@
+/*** ** valid hdl but bogus chip ** ***/
+CHIP KindaOk {
+  IN a, b;
+  /* this is a comment */
+  OUT out;
+}

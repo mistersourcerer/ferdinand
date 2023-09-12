@@ -12,4 +12,15 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  def fixture(file_rel_path)
+    path = File.expand_path(file_rel_path, "./spec/fixtures")
+    File.read(path)
+  end
+
+  def token(type, line:, column:, source: nil, value: nil)
+    Ferdinand::Scanner::Token.new(
+      type, line: line, column: column, value: value, source: source
+    )
+  end
 end
