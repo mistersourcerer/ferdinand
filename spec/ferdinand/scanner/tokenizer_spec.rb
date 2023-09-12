@@ -19,7 +19,7 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
     subject(:tokens) { described_class.new(fixture("valid.hdl")).tokens }
 
     it "find all tokens in the code" do
-      expect(tokens.length).to eq 14
+      expect(tokens.length).to eq 15
     end
 
     describe "comment" do
@@ -28,8 +28,23 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
           :comment,
           line: 1,
           column: 1,
-          source: "/*** * valid hdl but bogus chip * ***/",
-          value: " * valid hdl but bogus chip * "
+          source: "/*** ** valid hdl but bogus chip ** ***/",
+          value: " ** valid hdl but bogus chip ** "
+        )
+      end
+
+      it "recognizes a multiline comment" do
+        multiline_comment = tokens[13]
+
+        expect(multiline_comment).to eq token(
+          :comment,
+          line: 6,
+          column: 3,
+          source: "/*** ***\n" \
+            "  Now we have a multiline comment.\n" \
+            "  This will be ok too!\n" \
+            "  *** */",
+          value: " ***  Now we have a multiline comment.  This will be ok too!  *** "
         )
       end
     end

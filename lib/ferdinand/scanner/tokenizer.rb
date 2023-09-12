@@ -9,11 +9,9 @@ module Ferdinand
 
       def tokens
         tokens = []
-
         while (token = next_token)
           tokens << token
         end
-
         tokens
       end
 
@@ -21,9 +19,12 @@ module Ferdinand
 
       attr_reader :reader
 
+      def read!
+        reader.next.tap { @column += 1 }
+      end
+
       def next_token
-        char = reader.next
-        @column += 1
+        char = read!
 
         if char.nil?
           nil
@@ -34,7 +35,7 @@ module Ferdinand
           eat_spaces(char)
           next_token
         elsif separator?(char)
-          separator_token(char)
+          token(char)
         elsif comment?(char)
           comment_token(char)
         else
@@ -42,65 +43,47 @@ module Ferdinand
         end
       end
 
-      def next_line
-        @line += 1
-        @column = 0
-      end
-
       def comment?(char)
-        char == "/" && reader.peek == "*"
+        char == "/" && reader.peek?("*")
       end
 
       def separator?(char)
         char == "," || char == ";"
       end
 
-      def separator_token(char)
-        Token.new(
-          :separator,
-          line: @line,
-          column: @column,
-          source: char,
-          value: char
-        )
+      def token_finished?
+        separator?(reader.peek) || reader.peek?(nil, "\s", "\n")
+      end
+
+      def next_line
+        @line += 1
+        @column = 0
       end
 
       def eat_spaces(char)
-        while reader.peek == "\s"
-          reader.next
-          @column += 1
+        while reader.peek?("\s")
+          read!
         end
       end
 
-      def token_finished?
-        separator?(reader.peek) ||
-          reader.peek == "\s" ||
-          reader.peek == "\n" ||
-          reader.peek.nil?
-      end
-
-      def token(char)
-        started_at = {line: @line, column: @column}
-        word = char
+      def token(word, started_at: {}, type: nil, source: nil)
+        started_at = {
+          line: started_at.fetch(:line) { @line },
+          column: started_at.fetch(:column) { @column }
+        }
 
         if !token_finished?
-          while (char = reader.next)
-            @column += 1
+          while (char = read!)
             word << char
             break if token_finished?
           end
         end
 
-        word_token(started_at, word)
-      end
-
-      def word_token(started_at, word)
-        # TODO: good spot to check if `word` is a keyword, etc...
         Token.new(
-          :word,
+          type || :word,
           line: started_at[:line],
           column: started_at[:column],
-          source: word,
+          source: source || word,
           value: word
         )
       end
@@ -110,83 +93,39 @@ module Ferdinand
         source = open
         comment = ""
 
-        while (char = reader.next)
+        while (char = read!)
+          if char == "\n" || char == "/" || reader.peek?("/")
+            source << char
+          end
+
+          break if char == "/"
+
           if char == "\n"
             next_line
             next
           end
 
-          @column += 1
-          source << char
-          next if comment.empty? && char == "*"
-          break if char == "/"
-
-          if char == "*"
-            stars = ""
-            while reader.peek == "*"
-              stars << reader.next
-              @column += 1
-            end
-
-            if reader.peek == "/"
-              source << stars
-            else
-              comment << stars
-            end
-          else
-            comment << char
+          if reader.peek?("/")
+            source << read!
+            break
           end
+
+          if char == "*" && reader.peek?("*")
+            stars = char
+            while reader.peek?("*")
+              stars << read!
+            end
+            source << stars
+            comment << stars if !comment.empty? && !reader.peek?("/")
+
+            next
+          end
+
+          source << char
+          comment << char
         end
 
-        Token.new(
-          :comment,
-          line: started_at[:line],
-          column: started_at[:column],
-          source: source,
-          value: comment
-        )
-      end
-    end
-
-    class Reader
-      def initialize(input)
-        @input = to_io_like(input)
-      end
-
-      def next
-        return next_char if !@input.eof?
-        nil if @current_char.nil?
-      end
-
-      def peek
-        return @next_char if !@next_char.nil?
-
-        @next_char = @input.getc
-      end
-
-      def current
-        @current_char
-      end
-
-      private
-
-      def to_io_like(input)
-        return input if input.respond_to?(:getc) && input.respond_to?(:eof?)
-        # return File.new(input) if File.file?(input)
-
-        # TODO: check if it is "castable" first,
-        StringIO.new(input)
-      end
-
-      def next_char
-        if @next_char.nil?
-          @current_char = @input.getc
-        else
-          @current_char = @next_char
-          @next_char = nil
-        end
-
-        @current_char
+        token(comment, started_at: started_at, type: :comment, source: source)
       end
     end
   end
