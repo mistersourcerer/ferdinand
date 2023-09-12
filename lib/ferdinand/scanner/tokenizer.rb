@@ -35,11 +35,20 @@ module Ferdinand
           next_token
         elsif separator?(char)
           separator_token(char)
-        elsif char == "/" && reader.peek == "*"
+        elsif comment?(char)
           comment_token(char)
         else
-          word_token(char)
+          token(char)
         end
+      end
+
+      def next_line
+        @line += 1
+        @column = 0
+      end
+
+      def comment?(char)
+        char == "/" && reader.peek == "*"
       end
 
       def separator?(char)
@@ -63,35 +72,30 @@ module Ferdinand
         end
       end
 
-      def next_line
-        @line += 1
-        @column = 0
-      end
-
       def token_finished?
-        separator?(reader.peek) || reader.peek == "\s" || reader.peek == "\n" || reader.peek.nil?
+        separator?(reader.peek) ||
+          reader.peek == "\s" ||
+          reader.peek == "\n" ||
+          reader.peek.nil?
       end
 
-      def word_token(char)
+      def token(char)
         started_at = {line: @line, column: @column}
         word = char
 
-        if token_finished?
-          return Token.new(
-            :word,
-            line: started_at[:line],
-            column: started_at[:column],
-            source: word,
-            value: word
-          )
+        if !token_finished?
+          while (char = reader.next)
+            @column += 1
+            word << char
+            break if token_finished?
+          end
         end
 
-        while (char = reader.next)
-          @column += 1
-          word << char
-          break if token_finished?
-        end
+        word_token(started_at, word)
+      end
 
+      def word_token(started_at, word)
+        # TODO: good spot to check if `word` is a keyword, etc...
         Token.new(
           :word,
           line: started_at[:line],
