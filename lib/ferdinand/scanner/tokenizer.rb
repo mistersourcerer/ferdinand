@@ -51,8 +51,17 @@ module Ferdinand
         char == "," || char == ";"
       end
 
+      def delimiter?(char)
+        char == "{" || char == "}" ||
+          char == "[" || char == "]" ||
+          char == "(" || char == ")" ||
+          char == "="
+      end
+
       def token_finished?
-        separator?(reader.peek) || reader.peek?(nil, "\s", "\n")
+        separator?(reader.peek) ||
+          delimiter?(reader.peek) ||
+          reader.peek?(nil, "\s", "\n")
       end
 
       def next_line
@@ -66,13 +75,33 @@ module Ferdinand
         end
       end
 
+      def token_type_for(word)
+        @types ||= {
+          "CHIP" => :chip,
+          "IN" => :in,
+          "OUT" => :out,
+          "PARTS:" => :parts,
+          "{" => :openb,
+          "}" => :closeb,
+          "(" => :openp,
+          ")" => :closep,
+          "[" => :opens,
+          "]" => :closes,
+          "," => :comma,
+          ";" => :semi,
+          "=" => :eq
+        }
+
+        @types.fetch(word) { :ident }
+      end
+
       def token(word, started_at: {}, type: nil, source: nil)
         started_at = {
           line: started_at.fetch(:line) { @line },
           column: started_at.fetch(:column) { @column }
         }
 
-        if !token_finished?
+        if !delimiter?(word) && !token_finished?
           while (char = read!)
             word << char
             break if token_finished?
@@ -80,7 +109,7 @@ module Ferdinand
         end
 
         Token.new(
-          type || :word,
+          type || token_type_for(word),
           line: started_at[:line],
           column: started_at[:column],
           source: source || word,

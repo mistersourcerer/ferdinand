@@ -24,10 +24,6 @@ module Ferdinand
       def hash
         [self.class, type, value, line, source, column].hash
       end
-
-      private
-
-      TYPES = [:comment]
     end
   end
 end

@@ -7,4 +7,7 @@ CHIP KindaOk {
   Now we have a multiline comment.
   This will be ok too!
   *** */
+
+  PARTS:
+  Xor(a=a[0], b=b[0], out=c0);
 }

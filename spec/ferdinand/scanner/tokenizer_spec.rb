@@ -19,7 +19,57 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
     subject(:tokens) { described_class.new(fixture("valid.hdl")).tokens }
 
     it "find all tokens in the code" do
-      expect(tokens.length).to eq 15
+      expect(tokens.length).to eq 37
+    end
+
+    it "recognizes CHIP tokens" do
+      token = tokens[1]
+
+      expect(token.type).to eq :chip
+    end
+
+    it "recognizes identifier tokens" do
+      expect(tokens[2].type).to eq :ident
+    end
+
+    it "recognizes brackets" do
+      expect(tokens[3].type).to eq :openb
+      expect(tokens.last.type).to eq :closeb
+    end
+
+    it "recognizes IN" do
+      expect(tokens[4].type).to eq :in
+    end
+
+    it "recognizes comma" do
+      expect(tokens[6].type).to eq :comma
+    end
+
+    it "recognizes semicolon" do
+      expect(tokens[8].type).to eq :semi
+    end
+
+    it "recognizes OUT" do
+      expect(tokens[10].type).to eq :out
+    end
+
+    it "recognizes PARTS:" do
+      pp tokens[14]
+      expect(tokens[14].type).to eq :parts
+    end
+
+    it "recognizes parenthesis" do
+      expect(tokens[16].type).to eq :openp
+      expect(tokens[34].type).to eq :closep
+    end
+
+    it "recognizes equals (=)" do
+      expect(tokens[18].type).to eq :eq
+    end
+
+    it "recognizes square brackets" do
+      expect(tokens[20].type).to eq :opens
+      expect(tokens[22].type).to eq :closes
     end
 
     describe "comment" do
