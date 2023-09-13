@@ -19,7 +19,7 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
     subject(:tokens) { described_class.new(fixture("valid.hdl")).tokens }
 
     it "find all tokens in the code" do
-      expect(tokens.length).to eq 37
+      expect(tokens.length).to eq 38
     end
 
     it "recognizes CHIP tokens" do
@@ -94,6 +94,16 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
             "  This will be ok too!\n" \
             "  *** */",
           value: " ***  Now we have a multiline comment.  This will be ok too!  *** "
+        )
+      end
+
+      it "recognizes line comment" do
+        expect(tokens[-2]).to eq token(
+          :comment,
+          line: 14,
+          column: 3,
+          source: "// another valid comment is here",
+          value: " another valid comment is here"
         )
       end
     end

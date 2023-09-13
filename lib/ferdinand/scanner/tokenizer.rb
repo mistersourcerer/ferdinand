@@ -50,7 +50,7 @@ module Ferdinand
       end
 
       def comment?(char)
-        char == "/" && reader.peek?("*")
+        char == "/" && (reader.peek?("*") || reader.peek?("/"))
       end
 
       def separator?(char)
@@ -123,11 +123,26 @@ module Ferdinand
         )
       end
 
-      def comment_token(open = "/")
-        started_at = {line: @line, column: @column}
+      def line_comment_token(open, started_at)
         source = open
+        source << read!
         comment = ""
 
+        while (char = read!)
+          break if char == "\n"
+          source << char
+          comment << char
+        end
+
+        token(comment, started_at: started_at, type: :comment, source: source)
+      end
+
+      def comment_token(open = "/")
+        started_at = {line: @line, column: @column}
+        return line_comment_token(open, started_at) if reader.peek?("/")
+
+        source = open
+        comment = ""
         while (char = read!)
           if char == "/" || reader.peek?("/")
             source << char

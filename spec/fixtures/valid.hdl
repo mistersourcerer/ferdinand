@@ -10,4 +10,6 @@ CHIP KindaOk {
 
   PARTS:
   Xor(a=a[0], b=b[0], out=c0);
+
+  // another valid comment is here
 }
