@@ -1,6 +1,8 @@
 module Ferdinand
   module Scanner
     class Tokenizer
+      include Enumerable
+
       def initialize(code)
         @reader = Reader.new(code)
         @line = 1
@@ -8,11 +10,15 @@ module Ferdinand
       end
 
       def tokens
-        tokens = []
+        to_a
+      end
+
+      def each
+        return to_enum if !block_given?
+
         while (token = next_token)
-          tokens << token
+          yield(token)
         end
-        tokens
       end
 
       private

@@ -54,7 +54,6 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
     end
 
     it "recognizes PARTS:" do
-      pp tokens[14]
       expect(tokens[14].type).to eq :parts
     end
 
