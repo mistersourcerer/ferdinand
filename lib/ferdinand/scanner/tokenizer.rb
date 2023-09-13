@@ -38,7 +38,7 @@ module Ferdinand
           next_line
           next_token
         elsif char == "\s"
-          eat_spaces(char)
+          eat_spaces
           next_token
         elsif separator?(char)
           token(char)
@@ -75,9 +75,10 @@ module Ferdinand
         @column = 0
       end
 
-      def eat_spaces(char)
+      def eat_spaces
         while reader.peek?("\s")
-          read!
+          space = read!
+          yield(space) if block_given?
         end
       end
 
@@ -134,7 +135,7 @@ module Ferdinand
           comment << char
         end
 
-        token(comment, started_at: started_at, type: :comment, source: source)
+        token(comment.strip, started_at: started_at, type: :comment, source: source)
       end
 
       def comment_token(open = "/")
@@ -161,9 +162,9 @@ module Ferdinand
             while reader.peek?("*")
               stars << read!
             end
+
             source << stars
             comment << stars if !comment.empty? && !reader.peek?("/")
-
             next
           end
 
@@ -171,7 +172,7 @@ module Ferdinand
           comment << char
         end
 
-        token(comment, started_at: started_at, type: :comment, source: source)
+        token(comment.strip, started_at: started_at, type: :comment, source: source)
       end
     end
   end

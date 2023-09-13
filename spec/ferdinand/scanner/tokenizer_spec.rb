@@ -78,7 +78,7 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
           line: 1,
           column: 1,
           source: "/*** ** valid hdl but bogus chip ** ***/",
-          value: " ** valid hdl but bogus chip ** "
+          value: "** valid hdl but bogus chip **"
         )
       end
 
@@ -93,7 +93,7 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
             "  Now we have a multiline comment.\n" \
             "  This will be ok too!\n" \
             "  *** */",
-          value: " ***  Now we have a multiline comment.  This will be ok too!  *** "
+          value: "***  Now we have a multiline comment.  This will be ok too!  ***"
         )
       end
 
@@ -103,7 +103,7 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
           line: 14,
           column: 3,
           source: "// another valid comment is here",
-          value: " another valid comment is here"
+          value: "another valid comment is here"
         )
       end
     end
