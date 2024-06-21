@@ -11,6 +11,11 @@ def reload
   puts "reloaded..."
 end
 
+def fixture(file_rel_path)
+  @fixutres ||= File.join(Ferdinand::Infra.root, "spec/fixtures")
+  path = File.join(@fixutres, file_rel_path)
+  File.read(path)
+end
 
 include Ferdinand
 require "irb"
