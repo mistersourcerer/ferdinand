@@ -18,6 +18,12 @@ module Ferdinand
 
         Output.new(out: out)
       end
+
+      def pretty_print(q)
+        @_name ||= self.class.name.split("::").last
+        q.text "<chip> "
+        q.text @_name
+      end
     end
   end
 end

@@ -1,7 +1,8 @@
 RSpec.describe Ferdinand::Scanner::Tokenizer do
-  describe "locations" do
-    subject(:tokens) { described_class.new(fixture("valid.hdl")).tokens }
+  subject(:tokenizer) { described_class.new(fixture("valid.hdl")) }
+  let(:tokens) { tokenizer.tokens }
 
+  describe "locations" do
     it "knows the line where tokens were found" do
       out_token = tokens[10]
 
@@ -15,9 +16,35 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
     end
   end
 
-  describe "#tokens" do
-    subject(:tokens) { described_class.new(fixture("valid.hdl")).tokens }
+  describe "#next" do
+    it "returns always the next token" do
+      expect(tokenizer.next).to eq token(
+        :comment,
+        line: 1,
+        column: 1,
+        source: "/*** ** valid hdl but bogus chip ** ***/",
+        value: "** valid hdl but bogus chip **"
+      )
 
+      expect(tokenizer.next).to eq token(
+        :chip,
+        line: 2,
+        column: 1,
+        source: "CHIP",
+        value: "CHIP"
+      )
+
+      expect(tokenizer.next).to eq token(
+        :ident,
+        line: 2,
+        column: 6,
+        source: "KindaOk",
+        value: "KindaOk"
+      )
+    end
+  end
+
+  describe "#tokens" do
     it "find all tokens in the code" do
       expect(tokens.length).to eq 38
     end

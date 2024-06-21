@@ -9,6 +9,22 @@ module Ferdinand
         @column = 0
       end
 
+      def next
+        to_enum.next
+      rescue StopIteration
+        nil
+      end
+
+      def peek
+        to_enum.peek
+      rescue StopIteration
+        nil
+      end
+
+      def to_enum
+        @enum ||= super
+      end
+
       def tokens
         to_a
       end
@@ -58,7 +74,8 @@ module Ferdinand
       end
 
       def delimiter?(char)
-        char == "{" || char == "}" ||
+        separator?(char) ||
+          char == "{" || char == "}" ||
           char == "[" || char == "]" ||
           char == "(" || char == ")" ||
           char == "="
