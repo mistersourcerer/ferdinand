@@ -13,8 +13,8 @@ module Ferdinand
           if token.type == :chip
             name = tokenizer.next
             # raise if !name.type == :ident
-            tokenizer.next # openb = tokenizer.next
-            # raise if openb.type != :openb
+            token = tokenizer.next
+            error!("{", token) if token.type != :openb
             root << build_chip(name)
           end
         end
@@ -109,7 +109,7 @@ module Ferdinand
 
         while (token = tokenizer.next) && token.type != :closeb
           if !attr_of_chip?(token)
-            error = "Expected [#{token.value}] " \
+            error = "Expected << #{token.value} >> " \
               "to be part of #{name.value}<chip> at " \
               "[#{token.line}:#{token.column}]\n"
             error << "  parts of a chip are:\n"
@@ -121,7 +121,7 @@ module Ferdinand
         end
 
         if token.nil? || token.type != :closeb
-          error = "Expected a } [closing bracket] but none was found at" \
+          error = "Expected a << } >> but none was found at " \
             "[#{tokenizer.line}:#{tokenizer.column}]"
           raise SyntaxError.new(error)
         end
