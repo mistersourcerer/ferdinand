@@ -1,0 +1,6 @@
+CHIP Not {
+    IN in,another,   yet_another    ,  something;
+    OUT out;
+
+    PARTS:
+    Nand(  a=in, b=in    , out =   out);
