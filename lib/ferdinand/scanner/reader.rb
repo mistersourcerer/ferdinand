@@ -9,6 +9,7 @@ module Ferdinand
 
       def next
         return next_char if !@input.eof?
+
         nil if @current_char.nil?
       end
 

@@ -10,11 +10,7 @@ module Ferdinand
       end
 
       def call(a:, b:)
-        out = if a == 1 && b == 1
-          0
-        else
-          1
-        end
+        out = (a == 1 && b == 1) ? 0 : 1
 
         Output.new(out: out)
       end
