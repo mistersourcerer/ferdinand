@@ -27,9 +27,19 @@ module Ferdinand
       attr_reader :tokenizer
 
       def error!(expected, token)
-        error = "Expected a #{expected} but found #{token.value} at " \
-          "[#{token.line}:#{token.column}]"
+        error = "Expected a << #{expected} >> " \
+          "but found << #{token.value} >> at [#{token.line}:#{token.column}]"
         raise SyntaxError.new(error)
+      end
+
+      def attr_of_chip?(token)
+        attrs_of_chip.include? token.type
+      end
+
+      def attrs_of_chip
+        @attrs_of_chip ||= %i[
+          in out parts
+        ]
       end
 
       def build_pins(part)
@@ -74,35 +84,19 @@ module Ferdinand
         end
       end
 
-      def attrs_of_chip
-        @attrs_of_chip ||= %i[
-          in out parts
-        ]
-      end
-
-      def attr_of_chip?(token)
-        attrs_of_chip.include? token.type
+      def build_pin(chip, type)
+        while (token = tokenizer.next) && token.type != :semi
+          # raise if first iteration and no :ident
+          next if token.type == :comma
+          error!("identifier", token) if token.type != :ident
+          pin_type = (type == :in) ? :input : :output
+          chip.send pin_type, Ast.Pin(token.value)
+        end
       end
 
       def next_attr(chip, token)
-        if token.type == :in
-          while (token = tokenizer.next) && token.type != :semi
-            # raise if first iteration and no :ident
-            next if token.type == :comma
-            error!("identifier", token) if token.type != :ident
-
-            chip.input Ast.Pin(token.value)
-          end
-        end
-
-        if token.type == :out
-          while (token = tokenizer.next) && token.type != :semi
-            # raise if first iteration and no :ident
-            next if token.type == :comma
-            error!("identifier", token) if token.type != :ident
-
-            chip.output Ast.Pin(token.value)
-          end
+        if token.type == :in || token.type == :out
+          build_pin(chip, token.type)
         end
 
         if token.type == :parts
@@ -124,6 +118,12 @@ module Ferdinand
           end
 
           next_attr(chip, token)
+        end
+
+        if token.nil? || token.type != :closeb
+          error = "Expected a } [closing bracket] but none was found at" \
+            "[#{tokenizer.line}:#{tokenizer.column}]"
+          raise SyntaxError.new(error)
         end
 
         chip
