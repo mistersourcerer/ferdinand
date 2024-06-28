@@ -43,4 +43,22 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
       )
     end
   end
+
+  describe "#current" do
+    it "points to nil before it starts" do
+      expect(tokenizer.current).to be_nil
+    end
+
+    it "points to current token, same one returned by #next" do
+      token = tokenizer.next
+
+      expect(token).to eq tokenizer.current
+    end
+
+    it "return nil after #next returns last token" do
+      while tokenizer.next; end
+
+      expect(tokenizer.current).to be_nil
+    end
+  end
 end

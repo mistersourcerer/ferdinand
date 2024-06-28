@@ -1,18 +1,19 @@
 module Ferdinand::Scanner
   class Tokenizer
     include Enumerable
-    attr_reader :line, :column
+    attr_reader :line, :column, :current
 
     def initialize(code)
       @reader = Reader.new(code)
       @line = 1
       @column = 0
+      @current = nil
     end
 
     def next
-      to_enum.next
+      @current = to_enum.next
     rescue StopIteration
-      nil
+      @current = nil
     end
 
     def peek
