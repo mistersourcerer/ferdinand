@@ -45,7 +45,7 @@ module Ferdinand::Parser::Ast
     private
 
     def add_pins(pins, to:)
-      pins.each { |pin| to << pin }
+      pins.each { |pin| to << Ast.Pin(pin) }
     end
   end
 end
