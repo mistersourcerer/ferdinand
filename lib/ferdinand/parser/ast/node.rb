@@ -1,4 +1,10 @@
 module Ferdinand::Parser::Ast
+  def self.Node(name)
+    return name if name.is_a?(Node)
+
+    Node.new(name)
+  end
+
   class Node
     include Enumerable
     attr_reader :name
