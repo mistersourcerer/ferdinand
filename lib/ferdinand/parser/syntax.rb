@@ -48,10 +48,10 @@ module Ferdinand
         end
       end
 
-      def check_chip_part!(token)
+      def check_chip_part!(chip, token)
         if !attr_of_chip?(token)
           error = "Expected << #{token.value} >> " \
-            "to be part of #{name.value}<chip> at " \
+            "to be part of #{chip.name}<chip> at " \
             "[#{token.line}:#{token.column}]\n"
           error << "  parts of a chip are:\n"
           error << attrs_of_chip.reduce { |p| "    #{p}\n" }
@@ -98,6 +98,19 @@ module Ferdinand
         end
       end
 
+      def pin_for_attr(token)
+        Ast.Pin(token.value).tap { |pin|
+          if tokenizer.peek.type == :opens
+            tokenizer.next # consumes de opening square bracket
+            # raise if tokenizer.peek.type != NUMBER ??
+            size = tokenizer.next.value # consumes the opening square bracket
+            # raise if tokenizer.peek.type != :closes
+            tokenizer.next # consumes the closing square bracket
+            pin.size = size
+          end
+        }
+      end
+
       def next_attr(chip, token)
         if token.type == :in || token.type == :out
           type = token.type
@@ -106,7 +119,7 @@ module Ferdinand
             next if token.type == :comma
             error!("identifier", token) if token.type != :ident
             pin_type = (type == :in) ? :input : :output
-            chip.send pin_type, token.value
+            chip.send pin_type, pin_for_attr(token)
           end
         end
 
@@ -122,7 +135,7 @@ module Ferdinand
 
         chip.tap { |chip|
           while (token = tokenizer.next) && token.type != :closeb
-            check_chip_part!(token)
+            check_chip_part!(chip, token)
             next_attr(chip, token)
           end
           check_chip_closed!(tokenizer.current)

@@ -6,9 +6,11 @@ module Ferdinand::Parser::Ast
   end
 
   class Pin < Node
+    attr_accessor :size
     attr_reader :name
 
-    def initialize(name)
+    def initialize(name, size: 1)
+      @size = size
       @name = String(name)
     end
 

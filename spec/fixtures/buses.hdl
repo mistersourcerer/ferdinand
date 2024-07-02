@@ -1,0 +1,4 @@
+CHIP BusesFakeChip {
+  IN a[16], a[16], sel;
+  OUT out[16];
+}
