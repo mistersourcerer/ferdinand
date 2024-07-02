@@ -1,12 +1,13 @@
 module Ferdinand::Parser::Ast
   class Chip < Node
-    attr_reader :in, :out, :parts
+    attr_reader :in, :out, :parts, :builtin
 
     def initialize(name, &block)
       super(name)
       @in = Node.new(:input)
       @out = Node.new(:output)
       @parts = Node.new(:parts)
+      @builtin = Node.new(:builtin)
 
       instance_eval(&block) if block
     end
@@ -26,6 +27,10 @@ module Ferdinand::Parser::Ast
       @parts << part
     end
 
+    def builtin(chip_name)
+      @builtin << Ast.Node(chip_name)
+    end
+
     def ==(other)
       return false if self.class != other.class
 
@@ -38,7 +43,7 @@ module Ferdinand::Parser::Ast
     def pretty_print(q)
       p = super
       q.group do
-        [@in, @out, @parts].each { |n| p.child(n) }
+        [@in, @out, @parts, @builtin].each { |n| p.child(n) }
       end
     end
 

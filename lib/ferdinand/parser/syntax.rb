@@ -20,7 +20,7 @@ module Ferdinand
 
       def attrs_of_chip
         @attrs_of_chip ||= %i[
-          in out parts
+          in out parts builtin
         ]
       end
 
@@ -123,7 +123,18 @@ module Ferdinand
           end
         end
 
-        build_parts(chip) if token.type == :parts
+        if token.type == :builtin
+          name = tokenizer.next
+          # raise if name.type != :ident
+          chip.builtin name.value
+          if tokenizer.peek.type != :semi
+            error! ";", tokenizer.next
+          else
+            tokenizer.next # consumes semicolon
+          end
+        elsif token.type == :parts
+          build_parts(chip)
+        end
       end
 
       def build_chip

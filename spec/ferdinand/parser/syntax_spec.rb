@@ -48,4 +48,23 @@ RSpec.describe Syntax do
       expect(ast).to eq buses_chip
     end
   end
+
+  context "builtin keyword recognition" do
+    subject(:ast) { parser.analyse }
+
+    let(:hdl) { fixture("builtin.hdl") }
+    let(:builtin_chip) {
+      Ast::Root.new(
+        Ast::Chip.new("ChipWithBuiltin") {
+          input Ast::Pin.new(:in)
+          output Ast::Pin.new(:out)
+          builtin Ast::Node.new("OmgLolBbq")
+        }
+      )
+    }
+
+    it "should recognize a BUILTIN keyword" do
+      expect(ast).to eq builtin_chip
+    end
+  end
 end

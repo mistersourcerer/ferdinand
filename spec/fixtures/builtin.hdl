@@ -1,0 +1,5 @@
+CHIP ChipWithBuiltin {
+  IN in;
+  OUT out;
+  BUILTIN OmgLolBbq;
+}

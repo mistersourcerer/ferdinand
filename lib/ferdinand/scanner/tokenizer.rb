@@ -106,6 +106,7 @@ module Ferdinand::Scanner
         "IN" => :in,
         "OUT" => :out,
         "PARTS:" => :parts,
+        "BUILTIN" => :builtin,
         "{" => :openb,
         "}" => :closeb,
         "(" => :openp,
