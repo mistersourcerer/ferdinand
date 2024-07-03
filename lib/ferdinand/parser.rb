@@ -1,0 +1,2 @@
+module Ferdinand::Parser
+end
