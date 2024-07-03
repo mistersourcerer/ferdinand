@@ -22,4 +22,10 @@ class Ferdinand::Parser::Token
   def hash
     [self.class, type, value, line, source, column].hash
   end
+
+  def pretty_print(q)
+    p = Parser::Printer.new(q)
+    p.text "[", line, ":", column, "]", " ", type
+    p.text " ", "\"", value, "\"" if !value.nil?
+  end
 end
