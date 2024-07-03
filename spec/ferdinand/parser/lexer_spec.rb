@@ -1,6 +1,6 @@
-RSpec.describe Ferdinand::Scanner::Tokenizer do
-  subject(:tokenizer) { described_class.new(fixture("valid.hdl")) }
-  let(:tokens) { tokenizer.tokens }
+RSpec.describe Ferdinand::Parser::Lexer do
+  subject(:lexer) { described_class.new(fixture("valid.hdl")) }
+  let(:tokens) { lexer.tokens }
 
   describe "locations" do
     it "knows the line where tokens were found" do
@@ -18,7 +18,7 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
 
   describe "#next" do
     it "returns always the next token" do
-      expect(tokenizer.next).to eq token(
+      expect(lexer.next).to eq token(
         :comment,
         line: 1,
         column: 1,
@@ -26,7 +26,7 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
         value: "** valid hdl but bogus chip **"
       )
 
-      expect(tokenizer.next).to eq token(
+      expect(lexer.next).to eq token(
         :chip,
         line: 2,
         column: 1,
@@ -34,7 +34,7 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
         value: "CHIP"
       )
 
-      expect(tokenizer.next).to eq token(
+      expect(lexer.next).to eq token(
         :ident,
         line: 2,
         column: 6,
@@ -46,19 +46,19 @@ RSpec.describe Ferdinand::Scanner::Tokenizer do
 
   describe "#current" do
     it "points to nil before it starts" do
-      expect(tokenizer.current).to be_nil
+      expect(lexer.current).to be_nil
     end
 
     it "points to current token, same one returned by #next" do
-      token = tokenizer.next
+      token = lexer.next
 
-      expect(token).to eq tokenizer.current
+      expect(token).to eq lexer.current
     end
 
     it "return nil after #next returns last token" do
-      while tokenizer.next; end
+      while lexer.next; end
 
-      expect(tokenizer.current).to be_nil
+      expect(lexer.current).to be_nil
     end
   end
 end

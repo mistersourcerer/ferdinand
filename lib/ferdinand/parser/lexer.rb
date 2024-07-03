@@ -1,5 +1,5 @@
-module Ferdinand::Scanner
-  class Tokenizer
+module Ferdinand::Parser
+  class Lexer
     include Enumerable
     attr_reader :line, :column, :current
 

@@ -1,6 +1,6 @@
-RSpec.describe Ferdinand::Scanner::Tokenizer do
-  subject(:tokenizer) { described_class.new(fixture("valid.hdl")) }
-  let(:tokens) { tokenizer.tokens }
+RSpec.describe Ferdinand::Parser::Lexer do
+  subject(:lexer) { described_class.new(fixture("valid.hdl")) }
+  let(:tokens) { lexer.tokens }
 
   describe "#tokens" do
     it "find all tokens in the code" do
