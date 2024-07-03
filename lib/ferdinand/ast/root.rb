@@ -1,4 +1,4 @@
-class Ferdinand::Parser::Ast::Root < Parser::Ast::Node
+class Ferdinand::Ast::Root < Ferdinand::Ast::Node
   def initialize(name = "Ast::Root")
     super
   end

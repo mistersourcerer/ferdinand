@@ -1,4 +1,4 @@
-class Ferdinand::Parser::Ast::Node
+class Ferdinand::Ast::Node
   include Enumerable
   attr_accessor :name
 
@@ -9,9 +9,9 @@ class Ferdinand::Parser::Ast::Node
   def <<(child)
     # TODO: there is something wrong with this check
     #   don't know exatcly what, test it better...
-    # if !child.is_a?(Ferdinand::Parser::Ast::Node)
-    #  raise TypeError.new("child[#{child.class}] is not a Node")
-    # end
+    if !child.is_a?(Ferdinand::Ast::Node)
+      raise TypeError.new("child[#{child.class}] is not a Node")
+    end
     children << child
 
     self
