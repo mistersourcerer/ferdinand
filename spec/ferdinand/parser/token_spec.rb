@@ -1,4 +1,4 @@
-RSpec.describe Ferdinand::Scanner::Token do
+RSpec.describe Ferdinand::Parser::Token do
   subject(:comment) {
     described_class.new(
       :comment,

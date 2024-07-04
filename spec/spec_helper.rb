@@ -4,7 +4,6 @@ require "ferdinand"
 
 module Ferdinand::SpecHelper
   include Ferdinand
-  include Ferdinand::Parser
 
   def fixture(file_rel_path)
     path = File.expand_path(file_rel_path, "./spec/fixtures")
@@ -12,17 +11,9 @@ module Ferdinand::SpecHelper
   end
 
   def token(type, line:, column:, source: nil, value: nil)
-    Scanner::Token.new(
+    Parser::Token.new(
       type, line: line, column: column, value: value, source: source
     )
-  end
-
-  def pin(name)
-    Ast::Pin.new(name)
-  end
-
-  def part(name, **kwargs)
-    Ast::Part.new(name, **kwargs)
   end
 end
 
@@ -38,9 +29,4 @@ RSpec.configure do |config|
   end
 
   config.include Ferdinand::SpecHelper
-
-  # since those are meant as namespaces,
-  # I am unashamed of this workaround for testing in here.
-  include Ferdinand::Parser
-  include Ferdinand
 end
