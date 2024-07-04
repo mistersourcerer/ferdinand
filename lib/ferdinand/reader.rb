@@ -1,14 +1,22 @@
 require "stringio"
 
-class Ferdinand::Parser::Reader
+class Ferdinand::Reader
   def initialize(input)
     @input = to_io_like(input)
   end
 
   def next
-    return next_char if !@input.eof?
+    @current_char = nil
 
-    nil if @current_char.nil?
+    if @next_char.nil?
+      return if @input.eof?
+      @current_char = @input.getc
+    else
+      @current_char = @next_char
+      @next_char = nil
+    end
+
+    @current_char
   end
 
   def peek
@@ -19,6 +27,10 @@ class Ferdinand::Parser::Reader
 
   def peek?(*char)
     char.any? { |c| c == peek }
+  end
+
+  def eof?
+    @next_char.nil? && @input.eof?
   end
 
   private
@@ -33,6 +45,7 @@ class Ferdinand::Parser::Reader
 
   def next_char
     if @next_char.nil?
+      return if @input.eof?
       @current_char = @input.getc
     else
       @current_char = @next_char
