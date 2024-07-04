@@ -4,7 +4,7 @@ class Ferdinand::Parser::Printer
   end
 
   def text(*text)
-    text.each { |t| q.text t }
+    text.each { |t| q.text String(t) }
   end
 
   def space(identing = q.current_group.depth)

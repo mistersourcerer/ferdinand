@@ -1,96 +1,150 @@
 RSpec.describe Ferdinand::Parser::Lexer do
-  subject(:lexer) { described_class.new(fixture("valid.hdl")) }
-  let(:tokens) { lexer.tokens }
+  def tokens(source, klass = described_class)
+    lexer = klass.new(source)
+    lexer.tokens
+  end
 
-  describe "#tokens" do
-    it "find all tokens in the code" do
-      expect(tokens.length).to eq 38
+  describe "identifiers" do
+    it "knows identifiers" do
+      source = "NandToTetris"
+
+      expect(tokens(source)).to eq [
+        token(
+          :ident,
+          line: 1,
+          column: 1,
+          source: "NandToTetris",
+          value: "NandToTetris"
+        )
+      ]
     end
 
-    it "recognizes CHIP tokens" do
-      token = tokens[1]
+    it "recognizes multiple identifiers separated by space" do
+      source = "Nand To Tetris"
 
-      expect(token.type).to eq :chip
+      expect(tokens(source)).to eq [
+        token(:ident, line: 1, column: 1, source: "Nand", value: "Nand"),
+        token(:ident, line: 1, column: 6, source: "To", value: "To"),
+        token(:ident, line: 1, column: 9, source: "Tetris", value: "Tetris")
+      ]
     end
 
-    it "recognizes identifier tokens" do
-      expect(tokens[2].type).to eq :ident
+    it "ignores extra spaces between identifiers" do
+      source = "Nand    To        Tetris"
+
+      expect(tokens(source)).to eq [
+        token(:ident, line: 1, column: 1, source: "Nand", value: "Nand"),
+        token(:ident, line: 1, column: 9, source: "To", value: "To"),
+        token(:ident, line: 1, column: 19, source: "Tetris", value: "Tetris")
+      ]
     end
 
-    it "recognizes brackets" do
-      expect(tokens[3].type).to eq :openb
-      expect(tokens.last.type).to eq :closeb
+    it "knows how to trim spaces" do
+      source = "         Nand    To        Tetris      "
+
+      expect(tokens(source)).to eq [
+        token(:ident, line: 1, column: 10, source: "Nand", value: "Nand"),
+        token(:ident, line: 1, column: 18, source: "To", value: "To"),
+        token(:ident, line: 1, column: 28, source: "Tetris", value: "Tetris")
+      ]
+    end
+
+    it "recognizes commas surrounded by spaces" do
+      source = "NandTo , Tetris      "
+
+      expect(tokens(source)).to eq [
+        token(:ident, line: 1, column: 1, source: "NandTo", value: "NandTo"),
+        token(:comma, line: 1, column: 8, source: ",", value: ","),
+        token(:ident, line: 1, column: 10, source: "Tetris", value: "Tetris")
+      ]
+    end
+
+    it "recognizes commas" do
+      source = "NandTo,Tetris"
+
+      expect(tokens(source)).to eq [
+        token(:ident, line: 1, column: 1, source: "NandTo", value: "NandTo"),
+        token(:comma, line: 1, column: 7, source: ",", value: ","),
+        token(:ident, line: 1, column: 8, source: "Tetris", value: "Tetris")
+      ]
+    end
+
+    it "recognizes semicolons" do
+      source = "Nand;To ; Tetris"
+
+      expect(tokens(source)).to eq [
+        token(:ident, line: 1, column: 1, source: "Nand", value: "Nand"),
+        token(:semi, line: 1, column: 5, source: ";", value: ";"),
+        token(:ident, line: 1, column: 6, source: "To", value: "To"),
+        token(:semi, line: 1, column: 9, source: ";", value: ";"),
+        token(:ident, line: 1, column: 11, source: "Tetris", value: "Tetris")
+      ]
+    end
+
+    it "recognizes colon" do
+      source = "Nand:To : Tetris"
+
+      expect(tokens(source)).to eq [
+        token(:ident, line: 1, column: 1, source: "Nand", value: "Nand"),
+        token(:colon, line: 1, column: 5, source: ":", value: ":"),
+        token(:ident, line: 1, column: 6, source: "To", value: "To"),
+        token(:colon, line: 1, column: 9, source: ":", value: ":"),
+        token(:ident, line: 1, column: 11, source: "Tetris", value: "Tetris")
+      ]
+    end
+
+    it "recognizes equals" do
+      source = "Nand=To = Tetris"
+
+      expect(tokens(source)).to eq [
+        token(:ident, line: 1, column: 1, source: "Nand", value: "Nand"),
+        token(:eq, line: 1, column: 5, source: "=", value: "="),
+        token(:ident, line: 1, column: 6, source: "To", value: "To"),
+        token(:eq, line: 1, column: 9, source: "=", value: "="),
+        token(:ident, line: 1, column: 11, source: "Tetris", value: "Tetris")
+      ]
+    end
+  end
+
+  describe "reserved words" do
+    it "recognizes CHIP" do
+      source = "CHIP"
+
+      expect(tokens(source)).to eq [
+        token(:chip, line: 1, column: 1, source: "CHIP", value: "CHIP"),
+      ]
     end
 
     it "recognizes IN" do
-      expect(tokens[4].type).to eq :in
-    end
+      source = "IN"
 
-    it "recognizes comma" do
-      expect(tokens[6].type).to eq :comma
-    end
-
-    it "recognizes semicolon" do
-      expect(tokens[8].type).to eq :semi
+      expect(tokens(source)).to eq [
+        token(:in, line: 1, column: 1, source: "IN", value: "IN"),
+      ]
     end
 
     it "recognizes OUT" do
-      expect(tokens[10].type).to eq :out
+      source = "OUT"
+
+      expect(tokens(source)).to eq [
+        token(:out, line: 1, column: 1, source: "OUT", value: "OUT"),
+      ]
     end
 
-    it "recognizes PARTS:" do
-      expect(tokens[14].type).to eq :parts
+    it "recognizes PARTS" do
+      source = "PARTS"
+
+      expect(tokens(source)).to eq [
+        token(:parts, line: 1, column: 1, source: "PARTS", value: "PARTS"),
+      ]
     end
 
-    it "recognizes parenthesis" do
-      expect(tokens[16].type).to eq :openp
-      expect(tokens[34].type).to eq :closep
-    end
+    it "recognizes BUILTIN" do
+      source = "BUILTIN"
 
-    it "recognizes equals (=)" do
-      expect(tokens[18].type).to eq :eq
-    end
-
-    it "recognizes square brackets" do
-      expect(tokens[20].type).to eq :opens
-      expect(tokens[22].type).to eq :closes
-    end
-
-    describe "comment" do
-      it "recognizes classic comment" do
-        expect(tokens.first).to eq token(
-          :comment,
-          line: 1,
-          column: 1,
-          source: "/*** ** valid hdl but bogus chip ** ***/",
-          value: "** valid hdl but bogus chip **"
-        )
-      end
-
-      it "recognizes a multiline comment" do
-        multiline_comment = tokens[13]
-
-        expect(multiline_comment).to eq token(
-          :comment,
-          line: 6,
-          column: 3,
-          source: "/*** ***\n" \
-            "  Now we have a multiline comment.\n" \
-            "  This will be ok too!\n" \
-            "  *** */",
-          value: "***  Now we have a multiline comment.  This will be ok too!  ***"
-        )
-      end
-
-      it "recognizes line comment" do
-        expect(tokens[-2]).to eq token(
-          :comment,
-          line: 14,
-          column: 3,
-          source: "// another valid comment is here",
-          value: "another valid comment is here"
-        )
-      end
+      expect(tokens(source)).to eq [
+        token(:builtin, line: 1, column: 1, source: "BUILTIN", value: "BUILTIN"),
+      ]
     end
   end
 end

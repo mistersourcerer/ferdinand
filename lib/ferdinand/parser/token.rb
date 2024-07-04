@@ -24,7 +24,7 @@ class Ferdinand::Parser::Token
   end
 
   def pretty_print(q)
-    p = Parser::Printer.new(q)
+    p = Ferdinand::Parser::Printer.new(q)
     p.text "[", line, ":", column, "]", " ", type
     p.text " ", "\"", value, "\"" if !value.nil?
   end
